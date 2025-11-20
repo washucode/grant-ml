@@ -12,7 +12,12 @@ that becomes the foundation of the ML pipeline.
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import StandardScaler
+
+# to fix jissing numeric data with median,mean/most frequent / 0
 from sklearn.impute import SimpleImputer
+
+#to convert text to nuric features that model can understand TF-IDF
+#Term frequency -inverse document frequency
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 from .text_cleaner import TextCleaner
@@ -34,13 +39,13 @@ def build_preprocessor(numeric_columns, text_columns):
     numeric_pipeline = Pipeline([
         ("cleaner", NumericCleaner(numeric_columns)),
         ("imputer", SimpleImputer(strategy="median")),
-        ("scaler", StandardScaler())
+        ("scaler", StandardScaler()) #ensures values are in the same domain
     ])
 
     # 2. Text processing pipeline
     text_pipeline = Pipeline([
         ("cleaner", TextCleaner(text_columns)),
-        ("tfidf", TfidfVectorizer(
+        ("tfidf", TfidfVectorizer( 
             max_features=5000,
             ngram_range=(1, 2),
             stop_words="english"
