@@ -1,0 +1,6 @@
+.venv/
+__pychache__/
+models/
+data/raw/
+data/raw/
+data/processed/
