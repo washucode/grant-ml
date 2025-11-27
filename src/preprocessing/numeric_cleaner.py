@@ -17,8 +17,8 @@ class NumericCleaner(BaseEstimator, TransformerMixin):
     Removes impossinle values and fills missing data
     """
 
-    def __init__(self, nummeric_columns):
-        self.numeric_columns = nummeric_columns
+    def __init__(self, numeric_columns):
+        self.numeric_columns = numeric_columns
         # Supported currency names (extendable anytime)
         self.currency_words = [
             "kes", "ksh", "kshs", "usd", "eur", "gbp", "ugx", "tzs", "zar",
