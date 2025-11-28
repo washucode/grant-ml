@@ -23,6 +23,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from .text_cleaner import TextCleaner
 from .numeric_cleaner import NumericCleaner
 from .ratio_preprocessor import GrantRatioPreprocessor
+from .dataframe_wrapper  import DataFrameWrapper
 
 
 def build_preprocessor(numeric_columns, text_columns):
@@ -41,8 +42,13 @@ def build_preprocessor(numeric_columns, text_columns):
         ("imputer", SimpleImputer(strategy="median")),
         ("scaler", StandardScaler()) #ensures values are in the same domain
     ])
-
-    # 2. Text processing pipeline
+    # 2. Ratio pipeline
+    ratio_pipeline = Pipeline([
+        ("ratio_gen", GrantRatioPreprocessor()),
+        ("imputer", SimpleImputer(strategy="median")),   # clean unsafe values
+        ("scaler", StandardScaler())
+    ])
+    # 3. Text processing pipeline
     text_pipeline = Pipeline([
         ("cleaner", TextCleaner(text_columns)),
         ("tfidf", TfidfVectorizer( 
@@ -52,19 +58,15 @@ def build_preprocessor(numeric_columns, text_columns):
         ))
     ])
 
-    # 3. Ratio pipeline
-    ratio_pipeline = Pipeline([
-        ("ratio_gen", GrantRatioPreprocessor()),
-        ("imputer", SimpleImputer(strategy="median")),   # clean unsafe values
-        ("scaler", StandardScaler())
-    ])
+    
 
     # 4. Master ColumnTransformer
     preprocessor = ColumnTransformer(
         transformers=[
-            ("numeric", numeric_pipeline, numeric_columns),
-            ("text", text_pipeline, text_columns),
-            ("ratios", ratio_pipeline, numeric_columns)  # ratios use numeric columns
+            ("numeric", DataFrameWrapper(numeric_pipeline, numeric_columns),numeric_columns),
+            ("ratios",  DataFrameWrapper(ratio_pipeline, numeric_columns),numeric_columns),  # ratios use numeric columns
+            ("text", DataFrameWrapper(text_pipeline, text_columns),text_columns)
+            
         ],
         remainder="drop"
     )

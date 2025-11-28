@@ -21,7 +21,10 @@ class GrantRatioPreprocessor(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X):
-        df = X.copy()
+        df = pd.DataFrame(X).copy()
+        
+        for col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors="coerce") 
 
         # Ratio 1: Grant Absorption (capacity)
         df["ratio_absorption"] = df["past_grants_total"] / (df["annual_budget"] + 1)
